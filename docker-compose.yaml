@@ -1,0 +1,67 @@
+version: '3.9'
+
+services:
+  nginx:
+    image: nginx:latest
+    container_name: nginx2
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - api
+    networks:
+      - backend
+      - frontend
+    restart: unless-stopped
+
+  api:
+    image: mcr.microsoft.com/dotnet/aspnet:8.0
+    container_name: dotnet_api2
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=MyDb;User=sa;Password=YourPassword123;
+    depends_on:
+      - sqlserver
+    volumes:
+      - ./api:/app
+    networks:
+
+      - backend
+    restart: unless-stopped
+
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: sqlserver2
+    ports:
+      - "1433:1433"
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=YourPassword123
+      - MSSQL_PID=Express
+    volumes:
+      - sqlserver_data:/var/opt/mssql
+    networks:
+      - backend
+    restart: unless-stopped
+
+  redis:
+    image: redis:latest
+    container_name: redis2
+    ports:
+      - "6379:6379"
+    networks:
+      - backend
+    restart: unless-stopped
+
+networks:
+  backend:
+  frontend:
+
+volumes:
+  sqlserver_data:
