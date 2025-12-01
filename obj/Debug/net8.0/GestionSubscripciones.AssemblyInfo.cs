@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("GestionSubscripciones")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+163b315b4b2208c2fbeb3585c6a49c050f3234b3")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+821100f87d7e64d0f627ecdead66891a1a420660")]
 [assembly: System.Reflection.AssemblyProductAttribute("GestionSubscripciones")]
 [assembly: System.Reflection.AssemblyTitleAttribute("GestionSubscripciones")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

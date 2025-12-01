@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\jaime\\OneDrive\\Escritorio\\desarrollo_entorno_servidor\\GestionSubscripciones\\GestionSubscripciones.csproj": {}
+    "c:\\Users\\jaime\\OneDrive\\Escritorio\\desarrollo_entorno_servidor\\GestionSubscripciones\\GestionSubscripciones.csproj": {}
   },
   "projects": {
-    "C:\\Users\\jaime\\OneDrive\\Escritorio\\desarrollo_entorno_servidor\\GestionSubscripciones\\GestionSubscripciones.csproj": {
+    "c:\\Users\\jaime\\OneDrive\\Escritorio\\desarrollo_entorno_servidor\\GestionSubscripciones\\GestionSubscripciones.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\jaime\\OneDrive\\Escritorio\\desarrollo_entorno_servidor\\GestionSubscripciones\\GestionSubscripciones.csproj",
+        "projectUniqueName": "c:\\Users\\jaime\\OneDrive\\Escritorio\\desarrollo_entorno_servidor\\GestionSubscripciones\\GestionSubscripciones.csproj",
         "projectName": "GestionSubscripciones",
-        "projectPath": "C:\\Users\\jaime\\OneDrive\\Escritorio\\desarrollo_entorno_servidor\\GestionSubscripciones\\GestionSubscripciones.csproj",
+        "projectPath": "c:\\Users\\jaime\\OneDrive\\Escritorio\\desarrollo_entorno_servidor\\GestionSubscripciones\\GestionSubscripciones.csproj",
         "packagesPath": "C:\\Users\\jaime\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\jaime\\OneDrive\\Escritorio\\desarrollo_entorno_servidor\\GestionSubscripciones\\obj\\",
+        "outputPath": "c:\\Users\\jaime\\OneDrive\\Escritorio\\desarrollo_entorno_servidor\\GestionSubscripciones\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\jaime\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -46,6 +46,10 @@
             "Microsoft.AspNetCore.OpenApi": {
               "target": "Package",
               "version": "[8.0.20, )"
+            },
+            "Microsoft.Data.SqlClient": {
+              "target": "Package",
+              "version": "[6.1.3, )"
             },
             "Swashbuckle.AspNetCore": {
               "target": "Package",

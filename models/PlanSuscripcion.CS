@@ -1,4 +1,4 @@
-namespace ENTREGA_1EV.models
+namespace GESTIONSUBSCRIPCIONES.models
 {
     public class PlanSuscripcion
     {
