@@ -4,202 +4,189 @@ using Microsoft.Extensions.Configuration;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System;
+using System.Linq; // Necesario para LINQ (First, etc.)
+using GESTIONSUBSCRIPCIONES.Repositories; // Asegúrate de usar el namespace correcto
 
 namespace GESTIONSUBSCRIPCIONES.Repository
 {
+    // El nombre del archivo es UsuarioReposirtory.cs, pero la clase es UsuarioRepository
     public class UsuarioRepository : IUsuarioRepository 
     {
         private readonly string _connectionString;
+        
+        // Asumo que el PlanSuscripcionRepository será necesario para buscar el plan,
+        // pero por simplicidad de la consulta SQL (JOIN), lo haremos en una sola.
+        // Si no existe IPlanSuscripcionRepository, se puede inyectar IConfiguration
+        // directamente y hacer la consulta simple. Vamos a simplificar.
 
-        // Inyecciones de repositorios de ítems
-        private readonly IPlatoPrincipalRepository _platoprincipalrepository;
-        private readonly IBebidaRepository _bebidarepository;
-        private readonly IPostreRepository _postrerepository;
-
-        public MenuRepository(IConfiguration configuration, IPlatoPrincipalRepository platoprincipalrepository, IBebidaRepository bebidarepository, IPostreRepository postrerepository)
+        public UsuarioRepository(IConfiguration configuration)
         {
-             _connectionString = configuration.GetConnectionString("RestauranteDB") ?? "Not found";
-             _platoprincipalrepository = platoprincipalrepository;
-             _bebidarepository = bebidarepository;
-             _postrerepository = postrerepository;
+             // 💡 Usamos la clave correcta del appsettings.json
+             _connectionString = configuration.GetConnectionString("GestionServiceDB") ?? 
+                                 throw new ArgumentNullException(nameof(configuration), "La cadena de conexión 'GestionServiceDB' no se encontró.");
         }
         
         // --- GET ALL ASYNC (Listar) ---
-        public async Task<List<Menu>> GetAllAsync()
+        public async Task<List<Usuario>> GetAllAsync()
         {
-            var menus = new List<Menu>();
+            var usuarios = new List<Usuario>();
+
+            // 💡 Consulta SQL que une Usuario y PlanSuscripcion
+            // Asumo que tu tabla de PlanSuscripcion tiene una columna PlanActualId (int)
+            // que es una FK a la tabla PlanSuscripcion.
+            string query = @"
+                SELECT 
+                    u.ID_Usuario, u.Email, u.NombrePerfil, u.DispositivosActivos, 
+                    u.MontoPagadoAcumulado, u.PremiumActivo, u.FechaRegistro, 
+                    p.ID_Plan, p.Nombre as PlanNombre, p.PrecioMensual, 
+                    p.MaxDispositivos, p.CalidadMaxStreaming, p.PermiteDescarga, 
+                    p.FechaUltimaRevision
+                FROM 
+                    Usuario u
+                JOIN 
+                    PlanSuscripcion p ON u.PlanActualId = p.ID_Plan; -- 💡 ASUMO QUE EXISTE PlanActualId EN LA TABLA Usuario
+            ";
 
             using (var connection = new SqlConnection(_connectionString))
             {
                 await connection.OpenAsync();
-                // NOTA: Asumo que el nombre de la tabla en BD sigue siendo 'Combo' o lo has renombrado a 'Menu'.
-                // Usaré 'Combo' en la query por si la BD no se ha actualizado. Si se llama 'Menu', cámbialo aquí.
-                string query = "SELECT Id, PlatoPrincipal, Bebida, Postre, Fecha, Precio FROM Combo"; 
                 using (var command = new SqlCommand(query, connection))
                 {
                     using (var reader = await command.ExecuteReaderAsync())
                     {
                         while (await reader.ReadAsync())
                         {
-                            int platoId = reader.GetInt32(1);
-                            int bebidaId = reader.GetInt32(2);
-                            int postreId = reader.GetInt32(3);
-                            
-                            var menu = new Menu // Usando la clase Menu
+                            var plan = new PlanSuscripcion
                             {
-                                Id = reader.GetInt32(0),
-                                PlatoPrincipalId = platoId, 
-                                BebidaId = bebidaId, 
-                                PostreId = postreId, 
-                                Fecha = reader.GetDateTime(4), 
-                                Precio = Convert.ToDouble(reader.GetDecimal(5)), 
-                                
-                                // Carga de objetos de navegación
-                                PlatoPrincipal = await _platoprincipalrepository.GetByIdAsync(platoId),
-                                Bebida = await _bebidarepository.GetByIdAsync(bebidaId),
-                                Postre = await _postrerepository.GetByIdAsync(postreId)
-                            }; 
-                            menus.Add(menu);
-                        }
-                    }
-                }
-            }
-            return menus;
-        }
-
-        // --- GET BY ID ASYNC (Consultar) ---
-        public async Task<Menu?> GetByIdAsync(int id)
-        {
-            Menu? menu = null;
-
-            using (var connection = new SqlConnection(_connectionString))
-            {
-                await connection.OpenAsync();
-                // NOTA: Revisar el SELECT, faltaba una coma después de Postre
-                string query = "SELECT Id, PlatoPrincipal, Bebida, Postre, Fecha, Precio FROM Combo WHERE Id = @Id"; 
-                using (var command = new SqlCommand(query, connection))
-                {
-                    command.Parameters.AddWithValue("@Id", id);
-
-                    using (var reader = await command.ExecuteReaderAsync())
-                    {
-                        if (await reader.ReadAsync())
-                        {
-                            int platoId = reader.GetInt32(1);
-                            int bebidaId = reader.GetInt32(2);
-                            int postreId = reader.GetInt32(3);
-
-                            menu = new Menu // Usando la clase Menu
-                            {
-                                Id = reader.GetInt32(0),
-                                PlatoPrincipalId = platoId, 
-                                BebidaId = bebidaId, 
-                                PostreId = postreId,        
-                                Fecha = reader.GetDateTime(4), 
-                                Precio = Convert.ToDouble(reader.GetDecimal(5)), 
-                                
-                                PlatoPrincipal = await _platoprincipalrepository.GetByIdAsync(platoId),
-                                Bebida = await _bebidarepository.GetByIdAsync(bebidaId),
-                                Postre = await _postrerepository.GetByIdAsync(postreId)
+                                ID_Plan = reader.GetInt32(7),
+                                Nombre = reader.GetString(8),
+                                PrecioMensual = reader.GetDecimal(9),
+                                MaxDispositivos = reader.GetInt32(10),
+                                CalidadMaxStreaming = reader.GetString(11),
+                                PermiteDescarga = reader.GetBoolean(12),
+                                FechaUltimaRevision = reader.GetDateTime(13)
                             };
+
+                            var usuario = new Usuario
+                            {
+                                ID_Usuario = reader.GetInt32(0),
+                                Email = reader.GetString(1),
+                                NombrePerfil = reader.GetString(2),
+                                DispositivosActivos = reader.GetInt32(3),
+                                MontoPagadoAcumulado = reader.GetDecimal(4),
+                                PremiumActivo = reader.GetBoolean(5),
+                                FechaRegistro = reader.GetDateTime(6),
+                                PlanActual = plan // Asigna el objeto PlanSuscripcion
+                            };
+                            usuarios.Add(usuario);
                         }
                     }
                 }
             }
-            return menu;
+            return usuarios;
         }
 
-        // ADD ASYNC (Crear) 
-        public async Task AddAsync(Menu menu) 
+        // --- GET BY ID ASYNC (Obtener por ID) ---
+        public async Task<Usuario?> GetByIdAsync(int id)
         {
+            // Implementación similar a GetAllAsync, pero con un WHERE ID_Usuario = @id
+            // (Esta es una implementación que deberías revisar y completar en tu proyecto)
+            return await GetAllAsync().ContinueWith(t => t.Result.FirstOrDefault(u => u.ID_Usuario == id)); 
+        }
+
+        // --- ADD ASYNC (Añadir) ---
+        public async Task AddAsync(Usuario usuario)
+        {
+            // 💡 IMPORTANTE: Debes asegurarte de que PlanActualId existe en tu modelo Usuario y base de datos
+            string query = @"
+                INSERT INTO Usuario (Email, NombrePerfil, DispositivosActivos, MontoPagadoAcumulado, PremiumActivo, FechaRegistro, PlanActualId)
+                VALUES (@Email, @NombrePerfil, @DispositivosActivos, @MontoPagadoAcumulado, @PremiumActivo, @FechaRegistro, @PlanActualId);
+                SELECT CAST(SCOPE_IDENTITY() as int);
+            ";
+
             using (var connection = new SqlConnection(_connectionString))
             {
                 await connection.OpenAsync();
-                string query = @"
-                    INSERT INTO Combo (PlatoPrincipal, Bebida, Postre, Fecha, Precio) 
-                    VALUES (@PlatoPrincipalId, @BebidaId, @PostreId, @Fecha, @Precio)";
-                    
                 using (var command = new SqlCommand(query, connection))
                 {
-                    command.Parameters.AddWithValue("@PlatoPrincipalId", menu.PlatoPrincipalId);
-                    command.Parameters.AddWithValue("@BebidaId", menu.BebidaId);
-                    command.Parameters.AddWithValue("@PostreId", menu.PostreId);
-                    command.Parameters.AddWithValue("@Fecha", menu.Fecha); 
-                    command.Parameters.AddWithValue("@Precio", menu.Precio); 
-                    
-                    await command.ExecuteNonQueryAsync();
+                    command.Parameters.AddWithValue("@Email", usuario.Email);
+                    command.Parameters.AddWithValue("@NombrePerfil", usuario.NombrePerfil);
+                    command.Parameters.AddWithValue("@DispositivosActivos", usuario.DispositivosActivos);
+                    command.Parameters.AddWithValue("@MontoPagadoAcumulado", usuario.MontoPagadoAcumulado);
+                    command.Parameters.AddWithValue("@PremiumActivo", usuario.PremiumActivo);
+                    command.Parameters.AddWithValue("@FechaRegistro", usuario.FechaRegistro);
+                    // 💡 Asumo que el ID del Plan es lo que se guarda en la tabla Usuario
+                    command.Parameters.AddWithValue("@PlanActualId", usuario.PlanActual.ID_Plan); 
+
+                    usuario.ID_Usuario = (int)await command.ExecuteScalarAsync();
                 }
             }
         }
 
-        // UPDATE ASYNC (Actualizar) 
-        public async Task UpdateAsync(Menu menu) // Usando la clase Menu
+        // --- UPDATE ASYNC (Actualizar) ---
+        public async Task UpdateAsync(Usuario usuario)
         {
+            string query = @"
+                UPDATE Usuario SET 
+                    Email = @Email, 
+                    NombrePerfil = @NombrePerfil, 
+                    DispositivosActivos = @DispositivosActivos, 
+                    MontoPagadoAcumulado = @MontoPagadoAcumulado, 
+                    PremiumActivo = @PremiumActivo, 
+                    FechaRegistro = @FechaRegistro, 
+                    PlanActualId = @PlanActualId
+                WHERE ID_Usuario = @ID_Usuario;
+            ";
+
             using (var connection = new SqlConnection(_connectionString))
             {
                 await connection.OpenAsync();
-                string query = @"
-                    UPDATE Combo 
-                    SET PlatoPrincipal = @PlatoPrincipalId, 
-                        Bebida = @BebidaId, 
-                        Postre = @PostreId,
-                        Fecha = @Fecha,          
-                        Precio = @Precio          
-                    WHERE Id = @Id";
-                    
                 using (var command = new SqlCommand(query, connection))
                 {
-                    command.Parameters.AddWithValue("@Id", menu.Id);
-                    command.Parameters.AddWithValue("@PlatoPrincipalId", menu.PlatoPrincipalId);
-                    command.Parameters.AddWithValue("@BebidaId", menu.BebidaId);
-                    command.Parameters.AddWithValue("@PostreId", menu.PostreId);
-                    command.Parameters.AddWithValue("@Fecha", menu.Fecha); 
-                    command.Parameters.AddWithValue("@Precio", menu.Precio); 
+                    command.Parameters.AddWithValue("@ID_Usuario", usuario.ID_Usuario);
+                    command.Parameters.AddWithValue("@Email", usuario.Email);
+                    command.Parameters.AddWithValue("@NombrePerfil", usuario.NombrePerfil);
+                    command.Parameters.AddWithValue("@DispositivosActivos", usuario.DispositivosActivos);
+                    command.Parameters.AddWithValue("@MontoPagadoAcumulado", usuario.MontoPagadoAcumulado);
+                    command.Parameters.AddWithValue("@PremiumActivo", usuario.PremiumActivo);
+                    command.Parameters.AddWithValue("@FechaRegistro", usuario.FechaRegistro);
+                    command.Parameters.AddWithValue("@PlanActualId", usuario.PlanActual.ID_Plan); 
 
-                    await command.ExecuteNonQueryAsync();
+                    int affectedRows = await command.ExecuteNonQueryAsync();
+                    if (affectedRows == 0)
+                    {
+                        throw new KeyNotFoundException($"Usuario con ID {usuario.ID_Usuario} no encontrado.");
+                    }
                 }
             }
         }
 
-        // DELETE ASYNC (Eliminar) 
+        // --- DELETE ASYNC (Eliminar) ---
         public async Task DeleteAsync(int id)
         {
+            string query = "DELETE FROM Usuario WHERE ID_Usuario = @ID_Usuario";
             using (var connection = new SqlConnection(_connectionString))
             {
                 await connection.OpenAsync();
-                string query = "DELETE FROM Combo WHERE Id = @Id";
                 using (var command = new SqlCommand(query, connection))
                 {
-                    command.Parameters.AddWithValue("@Id", id);
-                    await command.ExecuteNonQueryAsync();
+                    command.Parameters.AddWithValue("@ID_Usuario", id);
+                    int affectedRows = await command.ExecuteNonQueryAsync();
+                     if (affectedRows == 0)
+                    {
+                        throw new KeyNotFoundException($"Usuario con ID {id} no encontrado.");
+                    }
                 }
             }
         }
         
-        //  INICIALIZAR DATOS ASYNC 
-        public async Task InicializarDatosAsync() {
-            var plato = await _platoprincipalrepository.GetByIdAsync(1);
-            var bebida = await _bebidarepository.GetByIdAsync(1);
-            var postre = await _postrerepository.GetByIdAsync(1);
-
-            if (plato != null && bebida != null && postre != null)
-            {
-                var menu = new Menu() // Usando la clase Menu
-                {
-                    PlatoPrincipalId = plato.Id, 
-                    BebidaId = bebida.Id, 
-                    PostreId = postre.Id,
-                    
-                    Fecha = DateTime.Today, 
-                    
-                    Precio = plato.Precio + bebida.Precio + postre.Precio  
-                };
-                menu.PlatoPrincipal = plato;
-                menu.Bebida = bebida;
-                menu.Postre = postre;
-
-                await AddAsync(menu); 
-            }
+        // --- INICIALIZAR DATOS ASYNC ---
+        // Elimino la inicialización anterior que usaba otras entidades.
+        public Task InicializarDatosAsync() {
+            // Este método debería estar en PlanSuscripcionRepository primero si quieres 
+            // asegurar que los planes base existen antes de que el usuario haga referencias a ellos.
+            // Lo dejo vacío por ahora.
+            return Task.CompletedTask;
         }
     }
 }

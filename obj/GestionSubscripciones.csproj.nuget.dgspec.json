@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "c:\\Users\\jaime\\OneDrive\\Escritorio\\desarrollo_entorno_servidor\\GestionSubscripciones\\GestionSubscripciones.csproj": {}
+    "C:\\Users\\jaime\\OneDrive\\Escritorio\\desarrollo_entorno_servidor\\GestionSubscripciones\\GestionSubscripciones.csproj": {}
   },
   "projects": {
-    "c:\\Users\\jaime\\OneDrive\\Escritorio\\desarrollo_entorno_servidor\\GestionSubscripciones\\GestionSubscripciones.csproj": {
+    "C:\\Users\\jaime\\OneDrive\\Escritorio\\desarrollo_entorno_servidor\\GestionSubscripciones\\GestionSubscripciones.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "c:\\Users\\jaime\\OneDrive\\Escritorio\\desarrollo_entorno_servidor\\GestionSubscripciones\\GestionSubscripciones.csproj",
+        "projectUniqueName": "C:\\Users\\jaime\\OneDrive\\Escritorio\\desarrollo_entorno_servidor\\GestionSubscripciones\\GestionSubscripciones.csproj",
         "projectName": "GestionSubscripciones",
-        "projectPath": "c:\\Users\\jaime\\OneDrive\\Escritorio\\desarrollo_entorno_servidor\\GestionSubscripciones\\GestionSubscripciones.csproj",
+        "projectPath": "C:\\Users\\jaime\\OneDrive\\Escritorio\\desarrollo_entorno_servidor\\GestionSubscripciones\\GestionSubscripciones.csproj",
         "packagesPath": "C:\\Users\\jaime\\.nuget\\packages\\",
-        "outputPath": "c:\\Users\\jaime\\OneDrive\\Escritorio\\desarrollo_entorno_servidor\\GestionSubscripciones\\obj\\",
+        "outputPath": "C:\\Users\\jaime\\OneDrive\\Escritorio\\desarrollo_entorno_servidor\\GestionSubscripciones\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\jaime\\AppData\\Roaming\\NuGet\\NuGet.Config"

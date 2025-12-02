@@ -1,0 +1,21 @@
+using GESTIONSUBSCRIPCIONES.models;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+
+namespace GESTIONSUBSCRIPCIONES.Services
+{
+    public interface IPlanSuscripcionService
+    {
+        Task<List<PlanSuscripcion>> GetAllAsync();
+        
+        Task<PlanSuscripcion?> GetByIdAsync(int id);
+        
+        Task AddAsync(PlanSuscripcion plan);
+        
+        Task UpdateAsync(PlanSuscripcion plan);
+        
+        Task DeleteAsync(int id);
+        
+        Task InicializarDatosAsync();
+    }
+}

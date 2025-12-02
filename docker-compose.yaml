@@ -22,10 +22,10 @@ services:
       context: ./api
       dockerfile: Dockerfile
     ports:
-      - "5000:5000"
+      - "8305:5000"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=GestionServiceDB;User=sa;Password=YourPassword123;
+      - ConnectionStrings__GestionServiceDB=Server=sqlserver;Database=GestionServiceDB;User=sa;Password=P@sswOrd2025!;
     depends_on:
       - sqlserver
     volumes:
@@ -39,10 +39,10 @@ services:
     image: mcr.microsoft.com/mssql/server:2022-latest
     container_name: sqlserver
     ports:
-      - "1433:1433"
+      - "5038:1433"
     environment:
       - ACCEPT_EULA=Y
-      - MSSQL_SA_PASSWORD=YourPassword123
+      - MSSQL_SA_PASSWORD=P@sswOrd2025!
       - MSSQL_PID=Express
     volumes:
       - sqlserver_data:/var/opt/mssql
@@ -52,7 +52,7 @@ services:
 
   redis:
     image: redis:latest
-    container_name: redis2
+    container_name: redis3
     ports:
       - "6379:6379"
     networks:

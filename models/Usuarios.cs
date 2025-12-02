@@ -11,7 +11,11 @@ namespace GESTIONSUBSCRIPCIONES.models
         public bool PremiumActivo { get; set; } 
         public DateTime FechaRegistro { get; set; } 
 
+        // 💡 Propiedad para la Clave Foránea (FK) del PlanSuscripcion
+        public int PlanActualId { get; set; }
+
         // Relación Muchos a Uno: Un Usuario tiene un PlanSuscripcion
-        public PlanSuscripcion PlanActual { get; set; }
+        // 💡 Esta propiedad se llena con el Plan, el ID se usa en el Repositorio.
+        public PlanSuscripcion PlanActual { get; set; } = null!;
     }
 }
