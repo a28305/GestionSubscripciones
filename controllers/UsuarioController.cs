@@ -52,14 +52,19 @@ namespace GESTIONSUBSCRIPCIONES.Controllers
                 PlanActual = planDto 
              };
         }
+        
+        // --- GET ALL ASYNC (Sin parámetros de filtrado/ordenación) ---
         [HttpGet]
         [ProducesResponseType(200, Type = typeof(IEnumerable<UsuarioDTO>))] 
         public async Task<IActionResult> GetAllUsuarios()
         {
+            // Nota: Aquí se asume que IUsuarioservices.GetAllAsync() no recibe argumentos en esta versión.
             var usuarios = await _userService.GetAllAsync();
             var dtos = usuarios.Select(MapToDto).ToList();
             return Ok(dtos);
         }
+        
+        // --- GET BY ID ASYNC ---
         [HttpGet("{id}")]
         [ProducesResponseType(200, Type = typeof(UsuarioDTO))]
         [ProducesResponseType(404)]
@@ -78,10 +83,11 @@ namespace GESTIONSUBSCRIPCIONES.Controllers
             }
             catch (ArgumentException ex)
             {
-                // Captura IDs inválidos (ej: id <= 0) del servicio
                 return BadRequest(ex.Message);
             }
         }
+        
+        // --- POST ASYNC ---
         [HttpPost]
         [ProducesResponseType(201, Type = typeof(UsuarioDTO))] 
         [ProducesResponseType(400)]
@@ -112,6 +118,7 @@ namespace GESTIONSUBSCRIPCIONES.Controllers
             }
         }
         
+        // --- PUT ASYNC ---
         [HttpPut("{id}")]
         [ProducesResponseType(204)] 
         [ProducesResponseType(400)]
@@ -149,6 +156,7 @@ namespace GESTIONSUBSCRIPCIONES.Controllers
             }
         }
         
+        // --- DELETE ASYNC ---
         [HttpDelete("{id}")]
         [ProducesResponseType(204)]
         [ProducesResponseType(404)]

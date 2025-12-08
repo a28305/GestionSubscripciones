@@ -14,7 +14,9 @@ namespace GESTIONSUBSCRIPCIONES.Repositories
         public PlanSuscripcionRepository(IConfiguration configuration)
         {
              // Asegúrate de que este nombre de conexión exista en tu appsettings.json
-             _connectionString = configuration.GetConnectionString("GestionSuscripcionesDB") ?? "Not found";
+             _connectionString = configuration.GetConnectionString("GestionServiceDB") ?? 
+                          throw new ArgumentNullException(nameof(configuration), "La cadena de conexión 'GestionServiceDB' no se encontró.");
+                          
         }
 
         // --- Método Auxiliar para Mapear los datos de la base de datos a la clase PlanSuscripcion ---
